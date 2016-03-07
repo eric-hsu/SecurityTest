@@ -9,6 +9,9 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+
 public class AESMain {
 	private static String str = "husq AES test";
 	/**
@@ -29,8 +32,10 @@ public class AESMain {
 			SecretKey  securetkey = keyGenerator.generateKey();
 			byte[] keyBytes = securetkey.getEncoded();
 			
+			String aesKey = (new BASE64Encoder()).encodeBuffer(keyBytes);
+			System.out.println("AES密钥，aesKey:"+aesKey);
 			//key转换
-			Key key = new SecretKeySpec(keyBytes,"AES");
+			Key key = new SecretKeySpec((new BASE64Decoder()).decodeBuffer(aesKey) ,"AES");
 			
 			//加密
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
@@ -41,7 +46,8 @@ public class AESMain {
 			
 			
 			//解密
-			cipher.init(Cipher.DECRYPT_MODE, key);
+			Key keyDncrypt = new SecretKeySpec((new BASE64Decoder()).decodeBuffer(aesKey),"AES");
+			cipher.init(Cipher.DECRYPT_MODE, keyDncrypt);
 			byte[] dsign  = cipher.doFinal(result);
 			System.out.println("jdk AES dncrypt="+new String(dsign));
 			
